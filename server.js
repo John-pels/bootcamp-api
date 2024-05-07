@@ -6,6 +6,7 @@ const express = require("express");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 const bootcampsRouter = require("./routes/bootcamps");
+const coursesRouter = require("./routes/courses");
 
 //Connect to the database
 connectDB();
@@ -22,6 +23,7 @@ if (process.env.NODE_ENV === "development") {
 
 //Mount routers
 app.use("/api/v1/bootcamps", bootcampsRouter);
+app.use("/api/v1/courses", coursesRouter);
 
 app.use(errorHandler);
 
