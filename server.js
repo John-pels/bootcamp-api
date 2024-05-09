@@ -1,5 +1,5 @@
 const path = require("path");
-const colors = require("colors");
+require("colors");
 require("dotenv").config({ path: "./config/config.env" });
 const morgan = require("morgan");
 const express = require("express");
