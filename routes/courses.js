@@ -8,8 +8,8 @@ const {
   updateCourse,
   deleteCourse,
 } = require("../controllers/courses");
-
 const coursesRouter = express.Router({ mergeParams: true });
+const { protect } = require("../middleware/auth");
 
 coursesRouter
   .route("/")
@@ -20,11 +20,11 @@ coursesRouter
     }),
     getCourses
   )
-  .post(addCourse);
+  .post(protect, addCourse);
 coursesRouter
   .route("/:id")
   .get(getCourse)
-  .put(updateCourse)
-  .delete(deleteCourse);
+  .put(protect, updateCourse)
+  .delete(protect, deleteCourse);
 
 module.exports = coursesRouter;
