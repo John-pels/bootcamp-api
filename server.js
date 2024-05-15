@@ -10,6 +10,7 @@ const usersRouter = require("./routes/users");
 const cookieParser = require("cookie-parser");
 const errorHandler = require("./middleware/error");
 const coursesRouter = require("./routes/courses");
+const reviewsRouter = require("./routes/reviews");
 const bootcampsRouter = require("./routes/bootcamps");
 
 //Connect to the database
@@ -35,10 +36,11 @@ app.use(fileupload());
 app.use(express.static(path.join(__dirname, "public")));
 
 //Mount routers
-app.use("/api/v1/bootcamps", bootcampsRouter);
-app.use("/api/v1/courses", coursesRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", usersRouter);
+app.use("/api/v1/courses", coursesRouter);
+app.use("/api/v1/reviews", reviewsRouter);
+app.use("/api/v1/bootcamps", bootcampsRouter);
 
 app.use(errorHandler);
 
