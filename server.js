@@ -1,7 +1,9 @@
 require("colors");
 require("dotenv").config({ path: "./config/config.env" });
 const path = require("path");
+const xss = require("xss-clean");
 const morgan = require("morgan");
+const helmet = require("helmet");
 const express = require("express");
 const connectDB = require("./config/db");
 const authRouter = require("./routes/auth");
@@ -35,6 +37,12 @@ app.use(fileupload());
 
 // Sanitize data
 app.use(mongoSanitize());
+
+// Set security headers
+app.use(helmet());
+
+// Prevent XSS attacks
+app.use(xss());
 
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
