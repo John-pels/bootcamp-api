@@ -12,6 +12,7 @@ const errorHandler = require("./middleware/error");
 const coursesRouter = require("./routes/courses");
 const reviewsRouter = require("./routes/reviews");
 const bootcampsRouter = require("./routes/bootcamps");
+const mongoSanitize = require("express-mongo-sanitize");
 
 //Connect to the database
 connectDB();
@@ -31,6 +32,9 @@ if (process.env.NODE_ENV === "development") {
 
 // File uploading
 app.use(fileupload());
+
+// Sanitize data
+app.use(mongoSanitize());
 
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
