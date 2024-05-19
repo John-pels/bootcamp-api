@@ -18,7 +18,38 @@ exports.register = asyncHandler(async (req, res, next) => {
     role,
   });
 
-  sendTokenResponse(user, 200, res);
+  // grab token and send to email
+  const confirmEmailToken = user.generateEmailConfirmToken();
+
+  // Create reset url
+  const confirmEmailURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/auth/confirm-email?token=${confirmEmailToken}`;
+
+  const message = `You are receiving this email because you need to confirm your email address. Please make a GET request to: \n\n ${confirmEmailURL}`;
+
+  user.save({ validateBeforeSave: false });
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Email confirmation token",
+      message,
+    });
+  } catch (err) {
+    console.log(err);
+    // update confirmed to false
+    user.confirmEmailToken = undefined;
+    user.isEmailConfirmed = false;
+
+    await user.save({ validateBeforeSave: false });
+    return next(new ErrorResponse("Email could not be sent", 500));
+  }
+
+  res.status(201).json({
+    success: true,
+    message: "Registration successful, please verify your email address.",
+  });
 });
 
 // @desc   Login  user
@@ -37,6 +68,10 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     return next(new ErrorResponse(`Invalid email or password`, 401));
+  }
+  // check if user has confirmed the email
+  if (!user.isEmailConfirmed) {
+    return next(new ErrorResponse(`Please confirm your email`, 401));
   }
 
   // Check if password matches
@@ -191,3 +226,43 @@ const sendTokenResponse = (user, statusCode, res) => {
     .cookie("token", token, options)
     .json({ success: true, token });
 };
+
+/**
+ * @desc    Confirm Email
+ * @route   GET /api/v1/auth/confirm-email
+ * @access  Public
+ */
+exports.confirmEmail = asyncHandler(async (req, res, next) => {
+  // grab token from email
+  const { token } = req.query;
+
+  if (!token) {
+    return next(new ErrorResponse("Invalid Token", 400));
+  }
+
+  const splitToken = token.split(".")[0];
+  const confirmEmailToken = crypto
+    .createHash("sha256")
+    .update(splitToken)
+    .digest("hex");
+
+  // get user by token
+  const user = await User.findOne({
+    confirmEmailToken,
+    isEmailConfirmed: false,
+  });
+
+  if (!user) {
+    return next(new ErrorResponse("Invalid Token", 400));
+  }
+
+  // update confirmed to true
+  user.confirmEmailToken = undefined;
+  user.isEmailConfirmed = true;
+
+  // save
+  user.save({ validateBeforeSave: false });
+
+  // return token
+  sendTokenResponse(user, 200, res);
+});
