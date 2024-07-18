@@ -4,9 +4,9 @@
 
 ![Image](./public/uploads/photo_5d725a1b7b292f5f8ceff788.jpg)
 
-# Devcamper-api
+# Bootcamp-api
 
-> Backend API for Devcamper Web Application, which is a bootcamp directory website
+> Backend API for Bootcamp Web Application, which is a bootcamp directory website
 
 ## Dependencies
 
